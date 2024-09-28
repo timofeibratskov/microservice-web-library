@@ -10,6 +10,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class LibService {
 
         return modelMapper.map(libRepository.save(bookstatus), BookStatusDto.class);
     }
+
     public BookStatusDto returnBook(Long bookId) {
         BookStatusEntity BookStatusEntity = libRepository.findByBookId(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
@@ -58,4 +61,13 @@ public class LibService {
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
         return modelMapper.map(BookStatusEntity, BookStatusDto.class);
-    }}
+    }
+
+    // Получение списка свободных книг
+    public List<BookStatusDto> getAvailableBooks() {
+        List<BookStatusEntity> availableBooks = libRepository.findAllByIsAvailableTrue();
+        return availableBooks.stream()
+                .map(bookStatusEntity -> modelMapper.map(bookStatusEntity, BookStatusDto.class))
+                .collect(Collectors.toList());
+    }
+}

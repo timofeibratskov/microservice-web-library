@@ -14,12 +14,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/library")
 @RequiredArgsConstructor
 public class LibController {
 
     private final LibService libraryService;
+
+    @Operation(summary = "Получить список свободных книг", description = "Возвращает список книг, доступных для взятия")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Список свободных книг успешно получен"),
+            @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
+    })
+    @GetMapping("/books/available")
+    public ResponseEntity<List<BookStatusDto>> getAvailableBooks() {
+        List<BookStatusDto> availableBooks = libraryService.getAvailableBooks();
+        return new ResponseEntity<>(availableBooks, HttpStatus.OK);
+    }
+
 
     @Operation(summary = "Добавление книги", description = "Добавляет книгу в систему на основе bookId")
     @ApiResponses(value = {
