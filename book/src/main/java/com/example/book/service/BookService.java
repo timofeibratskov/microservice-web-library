@@ -67,6 +67,8 @@ public class BookService {
         bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
         bookRepository.deleteById(id);
+        String url ="http://localhost:8070/library/book/" + id;
+        restTemplate.delete(url);
     }
 }
 

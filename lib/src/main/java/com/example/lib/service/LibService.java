@@ -1,8 +1,8 @@
 package com.example.lib.service;
 
-
 import com.example.lib.dto.BookStatusDto;
 import com.example.lib.entity.BookStatusEntity;
+import com.example.lib.exceptions.ResourceNotFoundException;
 import com.example.lib.repository.LibRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,50 +20,61 @@ public class LibService {
     private final LibRepository libRepository;
     private final ModelMapper modelMapper;
 
-
+    // Добавление книги
     public BookStatusDto addBook(Long id) {
         BookStatusEntity bookstatus = new BookStatusEntity(id);
         BookStatusEntity savedBookstatus = libRepository.save(bookstatus);
         return modelMapper.map(savedBookstatus, BookStatusDto.class);
     }
 
+    // Удаление статуса книги
+    public void deleteBookStatus(Long bookId) {
+        BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found in Library with ID: " + bookId));
+        libRepository.delete(bookStatusEntity);
+    }
+
+    // Взять книгу
     public BookStatusDto borrowBook(Long id) {
-        BookStatusEntity bookstatus = libRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
-        if (!bookstatus.isAvailable()) {
-            throw new RuntimeException("Book is not available");
+        BookStatusEntity bookStatus = libRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + id));
+
+        if (!bookStatus.isAvailable()) {
+            throw new RuntimeException("Book with ID " + id + " is not available for borrowing.");
         }
 
-        bookstatus.setBorrowedAt(LocalDateTime.now());
-        bookstatus.setReturnedAt(LocalDateTime.now().plusDays(14));
-        bookstatus.setAvailable(false);
+        bookStatus.setBorrowedAt(LocalDateTime.now());
+        bookStatus.setReturnedAt(LocalDateTime.now().plusDays(14));
+        bookStatus.setAvailable(false);
 
-        return modelMapper.map(libRepository.save(bookstatus), BookStatusDto.class);
+        return modelMapper.map(libRepository.save(bookStatus), BookStatusDto.class);
     }
 
+    // Вернуть книгу
     public BookStatusDto returnBook(Long bookId) {
-        BookStatusEntity BookStatusEntity = libRepository.findByBookId(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+        BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + bookId));
 
-        if (BookStatusEntity.isAvailable()) {
-            throw new RuntimeException("Book is not borrowed");
+        if (bookStatusEntity.isAvailable()) {
+            throw new RuntimeException("Book with ID " + bookId + " is not currently borrowed.");
         }
 
-        BookStatusEntity.setBorrowedAt(null);
-        BookStatusEntity.setReturnedAt(null);
-        BookStatusEntity.setAvailable(true);
-        return modelMapper.map(libRepository.save(BookStatusEntity), BookStatusDto.class);
+        bookStatusEntity.setBorrowedAt(null);
+        bookStatusEntity.setReturnedAt(null);
+        bookStatusEntity.setAvailable(true);
+
+        return modelMapper.map(libRepository.save(bookStatusEntity), BookStatusDto.class);
     }
 
-    // Получение статуса книги
+    // Получить статус книги
     public BookStatusDto getBookStatus(Long bookId) {
-        BookStatusEntity BookStatusEntity = libRepository.findByBookId(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+        BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + bookId));
 
-        return modelMapper.map(BookStatusEntity, BookStatusDto.class);
+        return modelMapper.map(bookStatusEntity, BookStatusDto.class);
     }
 
-    // Получение списка свободных книг
+    // Получить список доступных книг
     public List<BookStatusDto> getAvailableBooks() {
         List<BookStatusEntity> availableBooks = libRepository.findAllByIsAvailableTrue();
         return availableBooks.stream()

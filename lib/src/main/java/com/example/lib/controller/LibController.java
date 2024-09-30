@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -33,7 +35,15 @@ public class LibController {
         List<BookStatusDto> availableBooks = libraryService.getAvailableBooks();
         return new ResponseEntity<>(availableBooks, HttpStatus.OK);
     }
+    //используется только чтобы получить запрос на удаление из bookservice
+    @Operation(summary = "Удалить книгу", description = "Удаляет книгу по указанному ID")
+    @DeleteMapping("/book/{bookId}")
+    public ResponseEntity<Void> deleteBookStatus(@PathVariable Long bookId) {
+        libraryService.deleteBookStatus(bookId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
+    //используется только чтобы получить запрос на добавление книги из bookservice
 
     @Operation(summary = "Добавление книги", description = "Добавляет книгу в систему на основе bookId")
     @ApiResponses(value = {
