@@ -2,13 +2,13 @@ package com.example.lib.service;
 
 import com.example.lib.dto.BookStatusDto;
 import com.example.lib.entity.BookStatusEntity;
+import com.example.lib.exceptions.BookNotAvailableException;
 import com.example.lib.exceptions.ResourceNotFoundException;
 import com.example.lib.repository.LibRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,6 @@ public class LibService {
     private final LibRepository libRepository;
     private final ModelMapper modelMapper;
 
-    // Добавление книги
     public BookStatusDto addBook(Long id) {
         BookStatusEntity bookstatus = new BookStatusEntity(id);
         BookStatusEntity savedBookstatus = libRepository.save(bookstatus);
@@ -40,7 +39,7 @@ public class LibService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + id));
 
         if (!bookStatus.isAvailable()) {
-            throw new RuntimeException("Book with ID " + id + " is not available for borrowing.");
+            throw new BookNotAvailableException("Book with ID " + id + " is not available for borrowing.");
         }
 
         bookStatus.setBorrowedAt(LocalDateTime.now());
@@ -56,7 +55,7 @@ public class LibService {
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + bookId));
 
         if (bookStatusEntity.isAvailable()) {
-            throw new RuntimeException("Book with ID " + bookId + " is not currently borrowed.");
+            throw new BookNotAvailableException("Book with ID " + bookId + " is not currently borrowed.");
         }
 
         bookStatusEntity.setBorrowedAt(null);
@@ -66,7 +65,7 @@ public class LibService {
         return modelMapper.map(libRepository.save(bookStatusEntity), BookStatusDto.class);
     }
 
-    // Получить статус книги
+    @Transactional(readOnly = true)
     public BookStatusDto getBookStatus(Long bookId) {
         BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + bookId));
@@ -74,7 +73,7 @@ public class LibService {
         return modelMapper.map(bookStatusEntity, BookStatusDto.class);
     }
 
-    // Получить список доступных книг
+    @Transactional(readOnly = true)
     public List<BookStatusDto> getAvailableBooks() {
         List<BookStatusEntity> availableBooks = libRepository.findAllByIsAvailableTrue();
         return availableBooks.stream()

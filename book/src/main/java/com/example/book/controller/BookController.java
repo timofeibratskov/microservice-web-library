@@ -1,7 +1,7 @@
 package com.example.book.controller;
 
+import com.example.book.dto.BookCreateOrUpdateDto;
 import com.example.book.dto.BookDto;
-import com.example.book.repository.BookRepository;
 import com.example.book.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,7 +27,6 @@ import java.util.List;
 public class BookController {
 
     private final BookService bookService;
-    private final BookRepository bookRepository;
 
 
     @Operation(summary = "Получить все книги", description = "Возвращает список всех книг")
@@ -58,7 +57,7 @@ public class BookController {
 
     @Operation(summary = "Добавить новую книгу", description = "Создает новую книгу")
     @PostMapping
-    public ResponseEntity<BookDto> addBook(@RequestBody BookDto bookDto) {
+    public ResponseEntity<BookDto> addBook(@RequestBody BookCreateOrUpdateDto bookDto) {
         BookDto savedBook = bookService.addBook(bookDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
     }
@@ -67,8 +66,8 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<BookDto> updateBook(
             @PathVariable Long id,
-            @RequestBody BookDto bookDto) {
-        BookDto updatedBook = bookService.updateBook(id, bookDto);
+            @RequestBody BookCreateOrUpdateDto bookUpdateDto) {
+        BookDto updatedBook = bookService.updateBook(id, bookUpdateDto);
         return ResponseEntity.ok(updatedBook);
     }
 
