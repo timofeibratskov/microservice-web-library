@@ -3,6 +3,9 @@ spring:
     name: gateway
   config:
     import: optional:configserver:http://localhost:8888
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
   cloud:
     gateway:
       routes:
@@ -18,6 +21,12 @@ spring:
             - Path=/api/libs/**
           filters:
             - StripPrefix=1
+        - id: users-service
+          uri: lb://users
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
 
 eureka:
   client:
@@ -27,5 +36,3 @@ eureka:
 server:
   port: 8080
 
-jwt:
-  secret: "suppupkey123123123123"

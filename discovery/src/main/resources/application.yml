@@ -5,7 +5,7 @@ spring:
     import: optional:configserver:http://localhost:8888
 eureka:
   instance:
-    hostname: localhost  # или другой хост
+    hostname: localhost
   client:
     registerWithEureka: false
     fetchRegistry: false
