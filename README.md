@@ -46,7 +46,7 @@ spring:
   config:
     import: optional:configserver:http://localhost:8888  
   datasource:
-    url: jdbc:postgresql://localhost:5432/lib_db   # измените на вашы данные
+    url: jdbc:postgresql://localhost:5432/lib_db   
     username: postgres # ваше имя
     password: 1111 # ваш пароль
     driver-class-name: org.postgresql.Driver
