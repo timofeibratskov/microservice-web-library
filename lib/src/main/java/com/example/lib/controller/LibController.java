@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,27 +31,29 @@ public class LibController {
             @ApiResponse(responseCode = "200", description = "Список свободных книг успешно получен"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/books/available")
     public ResponseEntity<List<BookStatusDto>> getAvailableBooks() {
         List<BookStatusDto> availableBooks = libraryService.getAvailableBooks();
         return new ResponseEntity<>(availableBooks, HttpStatus.OK);
     }
-    //используется только чтобы получить запрос на удаление из bookservice
-    @Operation(summary = "Удалить книгу", description = "Удаляет книгу по указанному ID")
+
+    @Operation(summary = "Удалить книгу", description = "Удаляет книгу по указанному ID(используется только чтобы получить запрос на удаление из bookservice)")
     @DeleteMapping("/book/{bookId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteBookStatus(@PathVariable Long bookId) {
         libraryService.deleteBookStatus(bookId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //используется только чтобы получить запрос на добавление книги из bookservice
 
-    @Operation(summary = "Добавление книги", description = "Добавляет книгу в систему на основе bookId")
+    @Operation(summary = "Добавление книги", description = "Добавляет книгу в систему на основе bookId  (используется только чтобы получить запрос на добавление книги из bookservice)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Книга успешно добавлена"),
             @ApiResponse(responseCode = "400", description = "Неверный запрос"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/book")
     public ResponseEntity<BookStatusDto> addBook(@RequestParam Long bookId) {
         BookStatusDto bookStatusDto = libraryService.addBook(bookId);
@@ -63,6 +66,7 @@ public class LibController {
             @ApiResponse(responseCode = "400", description = "Книга не доступна для взятия"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @PostMapping("/book/borrow")
     public ResponseEntity<BookStatusDto> borrowBook(@RequestParam Long bookId) {
         BookStatusDto bookStatusDto = libraryService.borrowBook(bookId);
@@ -75,6 +79,7 @@ public class LibController {
             @ApiResponse(responseCode = "400", description = "Книга не была взята"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @PostMapping("/book/return")
     public ResponseEntity<BookStatusDto> returnBook(@RequestParam Long bookId) {
         BookStatusDto bookStatusDto = libraryService.returnBook(bookId);
@@ -87,6 +92,7 @@ public class LibController {
             @ApiResponse(responseCode = "404", description = "Книга не найдена"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     @GetMapping("/book/status")
     public ResponseEntity<BookStatusDto> getBookStatus(@RequestParam Long bookId) {
         BookStatusDto bookStatusDto = libraryService.getBookStatus(bookId);

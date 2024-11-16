@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/book/pom.xml" />
         <option value="$PROJECT_DIR$/library/pom.xml" />
         <option value="$PROJECT_DIR$/lib/pom.xml" />
+        <option value="$PROJECT_DIR$/user/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -2,16 +2,15 @@ package com.example.book.service;
 
 import com.example.book.client.LibClient;
 import com.example.book.dto.BookCreateOrUpdateDto;
-import org.springframework.transaction.annotation.Transactional;
 import com.example.book.dto.BookDto;
 import com.example.book.entity.BookEntity;
 import com.example.book.exceptions.ResourceNotFoundException;
 import com.example.book.repository.BookRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class BookService {
+
 
     private final BookRepository bookRepository;
     private final ModelMapper modelMapper;
@@ -54,20 +54,18 @@ public class BookService {
         BookEntity savedBookEntity = bookRepository.save(bookEntity);
         libClient.addBookToLibrary(savedBookEntity.getId());
         return modelMapper.map(savedBookEntity, BookDto.class);
-
     }
 
     public BookDto updateBook(Long id, BookCreateOrUpdateDto bookUpdateDto) {
         BookEntity bookEntity = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + id));
 
-        // Проверка уникальности ISBN
         if (!bookEntity.getIsbn().equals(bookUpdateDto.getIsbn()) &&
                 bookRepository.findByIsbn(bookUpdateDto.getIsbn()).isPresent()) {
             throw new EntityExistsException("Книга с таким ISBN уже существует. id: " + bookUpdateDto.getIsbn());
         }
 
-        modelMapper.map(bookUpdateDto, bookEntity);  // Обновляем существующую сущность данными из DTO
+        modelMapper.map(bookUpdateDto, bookEntity);
         BookEntity updatedBookEntity = bookRepository.save(bookEntity);
         return modelMapper.map(updatedBookEntity, BookDto.class);
     }
@@ -79,4 +77,3 @@ public class BookService {
         libClient.deleteBookFromLibrary(id);
     }
 }
-

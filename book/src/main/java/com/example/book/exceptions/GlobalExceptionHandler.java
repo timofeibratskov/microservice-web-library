@@ -1,4 +1,5 @@
 package com.example.book.exceptions;
+import feign.FeignException;
 import jakarta.persistence.EntityExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,5 +27,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGenericException(Exception e) {
         logger.error("An error occurred: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка: " + e.getMessage());
+    }
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<String> handleFeignException(FeignException e) {
+        logger.error("Feign exception: {}", e.getMessage(), e);
+        return ResponseEntity.status(e.status()).body("An error occurred: " + e.getMessage());
     }
 }
