@@ -26,7 +26,6 @@ public class LibService {
         return modelMapper.map(savedBookstatus, BookStatusDto.class);
     }
 
-    // Удаление статуса книги
     public void deleteBookStatus(Long bookId) {
         BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found in Library with ID: " + bookId));
@@ -49,7 +48,6 @@ public class LibService {
         return modelMapper.map(libRepository.save(bookStatus), BookStatusDto.class);
     }
 
-    // Вернуть книгу
     public BookStatusDto returnBook(Long bookId) {
         BookStatusEntity bookStatusEntity = libRepository.findByBookId(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID: " + bookId));

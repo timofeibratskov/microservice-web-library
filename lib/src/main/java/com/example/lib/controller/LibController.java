@@ -46,7 +46,6 @@ public class LibController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
     @Operation(summary = "Добавление книги", description = "Добавляет книгу в систему на основе bookId  (используется только чтобы получить запрос на добавление книги из bookservice)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Книга успешно добавлена"),
